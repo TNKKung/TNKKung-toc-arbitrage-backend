@@ -10,12 +10,17 @@ scrap_driver = CryptoScrapDriver()
 app = Flask(__name__)
 CORS(app)
 
+@app.route('/', methods=['GET'])
+def get_all_crypto_datas():
+
+  return { "data": scrap_driver.get_all_price_by_exchange("BITAZZA") }
 
 @app.route('/arb/<ticker>', methods=['GET'])
 def arbitrage(ticker):
   print(f'Ticker: {ticker}')
 
   return f"<h2>{ticker}</h2>"
+
 
 # @app.route('/currency/map', methods=['GET'],)
 # def currency_map():

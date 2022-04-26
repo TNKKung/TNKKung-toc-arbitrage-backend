@@ -7,7 +7,8 @@ from webdriver_manager.chrome import ChromeDriverManager
 # add other support exchange on this dict
 exchange_base_url = {"BITKUB": "https://www.bitkub.com",
                      "SATANG": "https://satangcorp.com",
-                     "BINANCE": "https://www.binance.com"}
+                     "BINANCE": "https://www.binance.com",
+                     "BITAZZA": "https://trade.bitazza.com/th/exchange"}
 
 
 class CryptoScrapDriver:
@@ -72,6 +73,31 @@ class CryptoScrapDriver:
                 '<div data-bn-type="text" style="direction:ltr" class="css-ovtrou">฿[0-9,.]+</div>', self.driver.page_source)
             coin_prices = re.findall(
                 '[0-9,.]+', ''.join(coin_prices))
+
+        elif exchange == "BITAZZA":
+            self.driver.get(fetch_url)
+            self.driver.implicitly_wait(3)
+            element = self.driver.find_element_by_css_selector("button.instrument-selector__trigger")
+            element.click()
+            self.driver.implicitly_wait(3)
+            coin_names = re.findall(
+                '">[(0-9)|aA-zZ]+/THB</div>', self.driver.page_source)
+            coin_names = re.findall('[(0-9)|aA-zZ]+/THB', ''.join(coin_names))
+            coin_names = list(map(lambda coin_name: coin_name[:-4], coin_names))
+
+            print(coin_names)
+
+            coin_prices = re.findall(
+                '<div class="flex-table__column instrument-selector-popup__column instrument-selector-popup__column--price"><div>[0-9,.]+</div></div>', self.driver.page_source)
+            coin_prices = re.findall(
+                '[0-9,.]+', ''.join(coin_prices))
+
+            # print(coin_prices)
+
+            print(len(coin_names), len(coin_prices), "- (Name, Prices)")
+
+            # coin_names = ['BTC']
+            # coin_prices = ['2,312,000.123']
 
         ########################################
         # implement other exchange logic here #
