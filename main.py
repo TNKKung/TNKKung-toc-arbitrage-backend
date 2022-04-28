@@ -1,5 +1,5 @@
-from flask import Flask, request
-from flask_cors import CORS
+from flask import Flask, request,jsonify
+from flask_cors import CORS,cross_origin
 import requests
 import os
 from module import CryptoScrapDriver
@@ -13,7 +13,7 @@ CORS(app)
 @app.route('/', methods=['GET'])
 def get_all_crypto_datas():
 
-  return { "data": scrap_driver.get_all_price_by_exchange("BITAZZA") }
+  return { "data": scrap_driver.get_all_price_by_exchange("ZIPMEX") }
 
 @app.route('/arb/<ticker>', methods=['GET'])
 def arbitrage(ticker):
@@ -39,7 +39,7 @@ def support_currencies():
   
   res_cmc = requests.get(f'https://pro-api.coinmarketcap.com/v2/cryptocurrency/info?symbol={req_symbols}', headers={ 
       # "X-CMC_PRO_API_KEY": os.environ.get('CMC_API_KEY') 
-      "X-CMC_PRO_API_KEY": "d1266ff8-c0c5-4178-8122-f0c777ce4ec0"
+      "X-CMC_PRO_API_KEY": "f81e1b32-3b77-41dc-b680-40b780698f63"
 
   })
 
@@ -48,6 +48,17 @@ def support_currencies():
     res.append({"symbol":symbol,"logo":res_cmc.json()['data'][symbol][0]['logo']})
 
   return {"data":res}
+
+# @app.route('/get_all_cryptos', methods=['GET'],)
+# def get_all_cryptos():
+#   req_crypto_datas = scrap_driver.get_all_crypto_datas()
+
+#   return {"data":req_crypto_datas}
+
+@app.route('/arbitrage', methods=['GET'])
+def get_all_crypto_data():
+
+  return jsonify(scrap_driver.get_all_crypto_datas())
 
 if __name__ == '__main__':
   app.run(port=5000, debug=True)

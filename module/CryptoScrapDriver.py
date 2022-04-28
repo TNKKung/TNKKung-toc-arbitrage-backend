@@ -8,7 +8,8 @@ from webdriver_manager.chrome import ChromeDriverManager
 exchange_base_url = {"BITKUB": "https://www.bitkub.com",
                      "SATANG": "https://satangcorp.com",
                      "BINANCE": "https://www.binance.com",
-                     "BITAZZA": "https://trade.bitazza.com/th/exchange"}
+                     "BITAZZA": "https://trade.bitazza.com/th/exchange",
+                     "ZIPMEX": "https://trade.zipmex.com/th/trade/"}
 
 
 class CryptoScrapDriver:
@@ -33,6 +34,7 @@ class CryptoScrapDriver:
             raise Exception(f'Exchange({exchange}) is not support')
 
         fetch_url = exchange_base_url[exchange]
+        coin_names, coin_prices = [], []
         if exchange == "BITKUB":
             self.driver.get(fetch_url)
 
@@ -80,24 +82,27 @@ class CryptoScrapDriver:
             element = self.driver.find_element_by_css_selector("button.instrument-selector__trigger")
             element.click()
             self.driver.implicitly_wait(3)
+            
             coin_names = re.findall(
                 '">[(0-9)|aA-zZ]+/THB</div>', self.driver.page_source)
             coin_names = re.findall('[(0-9)|aA-zZ]+/THB', ''.join(coin_names))
             coin_names = list(map(lambda coin_name: coin_name[:-4], coin_names))
 
-            print(coin_names)
-
             coin_prices = re.findall(
                 '<div class="flex-table__column instrument-selector-popup__column instrument-selector-popup__column--price"><div>[0-9,.]+</div></div>', self.driver.page_source)
             coin_prices = re.findall(
                 '[0-9,.]+', ''.join(coin_prices))
+        
+        elif exchange == "ZIPMEX":
+            self.driver.get(fetch_url)
+            ready_state = self.driver.execute_script('return document.readyState')
 
-            # print(coin_prices)
+            while ready_state == 'loading':
+                print('waiting for page to load')
+                ready_state = self.driver.execute_script('return document.readyState')
 
-            print(len(coin_names), len(coin_prices), "- (Name, Prices)")
-
-            # coin_names = ['BTC']
-            # coin_prices = ['2,312,000.123']
+            coin_names = []
+            coin_prices = []
 
         ########################################
         # implement other exchange logic here #
